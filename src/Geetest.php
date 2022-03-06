@@ -1,6 +1,6 @@
 <?php
 
-namespace Scpzc\Geetest;
+namespace Scpzc\HyperfGeetest;
 
 use GuzzleHttp\Client;
 
@@ -13,7 +13,7 @@ class Geetest{
 
     const GT_SDK_VERSION = 'php_3.0.0';
 
-    private $response;
+    private $response, $session;
 
     public $geetestID, $geetestKey, $config;
 
@@ -36,6 +36,7 @@ class Geetest{
         $this->geetestID = $config['geetestID'];
         $this->geetestKey = $config['geetestKey'];
         $this->config = $config;
+        $this->session = \Hyperf\Utils\ApplicationContext::getContainer()->get(\Hyperf\Contract\SessionInterface::class);
     }
 
     /**
@@ -167,32 +168,6 @@ class Geetest{
         return true;
     }
 
-    /**
-     * 获取客户端IP
-     *
-     * @return array|false|string
-     */
-    private function getIp(){
-        if(isset($_SERVER)){
-            if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
-                $realip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-            }elseif(isset($_SERVER['HTTP_CLIENT_IP'])) {
-                $realip = $_SERVER['HTTP_CLIENT_IP'];
-            }else{
-                $realip = $_SERVER['REMOTE_ADDR'];
-            }
-        }else{
-            if(getenv("HTTP_X_FORWARDED_FOR")){
-                $realip = getenv( "HTTP_X_FORWARDED_FOR");
-            }elseif(getenv("HTTP_CLIENT_IP")) {
-                $realip = getenv("HTTP_CLIENT_IP");
-            }else{
-                $realip = getenv("REMOTE_ADDR");
-            }
-        }
-
-        return $realip;
-    }
 
     /**
      * 获取验证码配置
@@ -202,17 +177,17 @@ class Geetest{
      * @return string
      */
     public function captcha($userID = 'test', $clientType = 'web'){
-        !isset($_SESSION) && session_start();
         $data = array(
             "user_id" => $userID,
             "client_type" => $clientType,
-            "ip_address" => $this->getIp()
+            "ip_address" => \Hyperf\Utils\Network::ip(),
         );
         $status = $this->preProcess($data, 1);
-        $_SESSION['gtServer'] = $status;
-        $_SESSION['gtUserID'] = $data['user_id'];
+        $this->session->set("gtServer",$status);
+        $this->session->set("gtUserID",$data['user_id']);
         return json_encode($this->response);
     }
+
 
     /**
      * 服务端校验
@@ -224,7 +199,7 @@ class Geetest{
      */
     public function validate($geetestChallenge, $geetestValidate, $geetestSeccode)
     {
-        if ($_SESSION['gtServer'] == 1) {
+        if ($this->session->get('gtServer') == 1) {
             if ($this->successValidate($geetestChallenge, $geetestValidate, $geetestSeccode, ['user_id' => $_SESSION['gtUserID']])) {
                 return true;
             }
@@ -237,11 +212,5 @@ class Geetest{
         }
     }
 
-    /**
-     * 模板内容
-     */
-    public function view(){
-        extract($this->config);
-        include 'view.php';
-    }
+
 }
