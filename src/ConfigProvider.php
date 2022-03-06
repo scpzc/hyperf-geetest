@@ -21,7 +21,7 @@ class ConfigProvider
                     'id' => 'config',
                     'description' => 'geetest配置', // 描述
                     // 建议默认配置放在 publish 文件夹中，文件命名和组件名称相同
-                    'source' => __DIR__ . '/publish/geetest.php',  // 对应的配置文件路径
+                    'source' => __DIR__ . '/../publish/geetest.php',  // 对应的配置文件路径
                     'destination' => BASE_PATH . '/config/autoload/geetest.php', // 复制为这个路径下的该文件
                 ],
             ],

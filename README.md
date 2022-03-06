@@ -7,7 +7,7 @@ $ composer require scpzc/hyperf-geetest -vvv
 ```
 
 ## 使用
-0. 发布配置
+0.发布配置
 
 ```php
 php bin/hyperf.php vendor:publish scpzc/hyperf-geetest
@@ -17,7 +17,11 @@ php bin/hyperf.php vendor:publish scpzc/hyperf-geetest
 
 ``` php
 // $config 参数见下方[配置项]
-$geetest = new Geetest($config);
+/**
+     * @Inject()
+     * @var Geetest
+     */
+    private $geeTest;
 ```
 
 2. 在模板中引入 [jquery.min.js](https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js) 和 [gt.js](http://static.geetest.com/static/tools/gt.js) ,在需要使用验证码的地方增加下述代码渲染
@@ -30,13 +34,13 @@ $geetest = new Geetest($config);
 3. 在 `captchaUrl` 路由指定的操作中,获取验证码参数
 
 ```php
-echo $geetest->captcha();
+echo $this->geetest->captcha();
 ```
 4. 随表单提交时,服务端校验验证码
 
 ```php
 // 校验结果为 true 或 false
-$geetest->validate($params['geetest_challenge'], $params['geetest_validate'], $params['geetest_seccode']);
+$this->geetest->validate($_POST['geetest_challenge'], $_POST['geetest_validate'], $_POST['geetest_seccode']);
 ```
 
 ## 配置项

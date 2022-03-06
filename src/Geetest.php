@@ -2,7 +2,10 @@
 
 namespace Scpzc\HyperfGeetest;
 
-use GuzzleHttp\Client;
+
+use Hyperf\Contract\SessionInterface;
+use Hyperf\Guzzle\ClientFactory;
+use Psr\Container\ContainerInterface;
 
 /**
  * 极验验证码
@@ -13,7 +16,7 @@ class Geetest{
 
     const GT_SDK_VERSION = 'php_3.0.0';
 
-    private $response, $session;
+    private $response, $session,$guzzleClient;
 
     public $geetestID, $geetestKey, $config;
 
@@ -25,18 +28,24 @@ class Geetest{
         'serverFailAlert' => '验证码校验失败',
     ];
 
+    public function __construct(ContainerInterface $container,ClientFactory $clientFactory,SessionInterface $session){
+        $this->container = $container;
+        $this->session = $session;
+        $this->guzzleClient = $clientFactory->create();
+        $this->setConfig([]);
+    }
+
     /**
      * Geetest constructor.
      *
      * @param array $config
      */
-    public function __construct($config = [])
+    public function setConfig($config)
     {
         $config = array_merge(self::$defaultConfig, $config);
         $this->geetestID = config('geetest.geetest_id');
         $this->geetestKey = config('geetest.geetest_key');
         $this->config = $config;
-        $this->session = \Hyperf\Utils\ApplicationContext::getContainer()->get(\Hyperf\Contract\SessionInterface::class);
     }
 
     /**
@@ -54,7 +63,7 @@ class Geetest{
         $data = array_merge($data,$param);
         $query = http_build_query($data);
         $url = "http://api.geetest.com/register.php?" . $query;
-        $client = new Client();
+        $client = $this->guzzleClient;
         $response = $client->get($url);
         $response = $response->getBody()->getContents();
         if (strlen($response) != 32) {
@@ -121,7 +130,7 @@ class Geetest{
         );
         $query = array_merge($query,$param);
         $url = "http://api.geetest.com/validate.php";
-        $client = new Client();
+        $client = new $this->guzzleClient;
         $response = $client->post($url, [
             'query' => http_build_query($query)
         ]);
