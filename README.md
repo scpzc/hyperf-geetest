@@ -7,12 +7,17 @@ $ composer require scpzc/hyperf-geetest -vvv
 ```
 
 ## 使用
+0.发布配置
+
+```php
+php bin/hyperf.php vendor:publish scpzc/hyperf-geetest
+```
 
 1. 生成极验验证码对象
 
 ``` php
 // $config 参数见下方[配置项]
-$geetest = new \Scpzc\Geetest\Geetest($config);
+$geetest = new Geetest($config);
 ```
 
 2. 在模板中引入 [jquery.min.js](https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js) 和 [gt.js](http://static.geetest.com/static/tools/gt.js) ,在需要使用验证码的地方增加下述代码渲染
@@ -47,16 +52,3 @@ $geetest->validate($_POST['geetest_challenge'], $_POST['geetest_validate'], $_PO
 | serverFailAlert  | 服务端失败提示语  |   | 验证码校验失败  |
 | captchaUrl  | 获取验证码初始化参数路由  |   |   |
 
-## 参考图
-
-![](https://qiniu.blog.lerzen.com/c7086810-2a14-11e7-a419-ed2a045e33b4.jpg)
-
-## 参考项目
-
-1. [Scpzc/LaravelGeetest](https://github.com/jormin/laravel-geetest)
-
-2. [GeeTeam/gt3-php-sdk](https://github.com/GeeTeam/gt3-php-sdk)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

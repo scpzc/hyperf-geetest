@@ -30,11 +30,11 @@ class Geetest{
      *
      * @param array $config
      */
-    public function __construct($config)
+    public function __construct($config = [])
     {
         $config = array_merge(self::$defaultConfig, $config);
-        $this->geetestID = $config['geetestID'];
-        $this->geetestKey = $config['geetestKey'];
+        $this->geetestID = config('geetest.geetest_id');
+        $this->geetestKey = config('geetest.geetest_key');
         $this->config = $config;
         $this->session = \Hyperf\Utils\ApplicationContext::getContainer()->get(\Hyperf\Contract\SessionInterface::class);
     }
