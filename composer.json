@@ -1,0 +1,21 @@
+{
+    "name": "scpzc/hyperf-geetest",
+    "description": "hyperf极验验证码",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "scpzc",
+            "email": "335760480@qq.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=7.4.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Scpzc\\HyperfGeetest\\": "src/"
+        }
+    }
+}
