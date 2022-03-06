@@ -7,7 +7,7 @@ $ composer require scpzc/hyperf-geetest -vvv
 ```
 
 ## 使用
-0.发布配置
+0. 发布配置
 
 ```php
 php bin/hyperf.php vendor:publish scpzc/hyperf-geetest
@@ -36,7 +36,7 @@ echo $geetest->captcha();
 
 ```php
 // 校验结果为 true 或 false
-$geetest->validate($_POST['geetest_challenge'], $_POST['geetest_validate'], $_POST['geetest_seccode']);
+$geetest->validate($params['geetest_challenge'], $params['geetest_validate'], $params['geetest_seccode']);
 ```
 
 ## 配置项

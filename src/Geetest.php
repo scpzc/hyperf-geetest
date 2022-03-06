@@ -185,7 +185,7 @@ class Geetest{
         $status = $this->preProcess($data, 1);
         $this->session->set("gtServer",$status);
         $this->session->set("gtUserID",$data['user_id']);
-        return json_encode($this->response);
+        return $this->response;
     }
 
 
@@ -200,7 +200,7 @@ class Geetest{
     public function validate($geetestChallenge, $geetestValidate, $geetestSeccode)
     {
         if ($this->session->get('gtServer') == 1) {
-            if ($this->successValidate($geetestChallenge, $geetestValidate, $geetestSeccode, ['user_id' => $_SESSION['gtUserID']])) {
+            if ($this->successValidate($geetestChallenge, $geetestValidate, $geetestSeccode, ['user_id' => $this->session->get('gtUserID')])) {
                 return true;
             }
             return false;
