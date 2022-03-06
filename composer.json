@@ -17,5 +17,10 @@
         "psr-4": {
             "Scpzc\\HyperfGeetest\\": "src/"
         }
+    },
+    "extra": {
+        "hyperf": {
+            "config": "Scpzc\\HyperfGeetest\\ConfigProvider"
+        }
     }
 }
