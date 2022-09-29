@@ -3,7 +3,6 @@
 namespace Scpzc\HyperfGeetest;
 
 
-use Hyperf\Contract\SessionInterface;
 use Hyperf\Guzzle\ClientFactory;
 use Psr\Container\ContainerInterface;
 
@@ -16,7 +15,7 @@ class Geetest{
 
     const GT_SDK_VERSION = 'php_3.0.0';
 
-    private $response, $session,$guzzleClient;
+    private $response,$redis,$guzzleClient;
 
     public $geetestID, $geetestKey, $config;
 
@@ -28,10 +27,10 @@ class Geetest{
         'serverFailAlert' => '验证码校验失败',
     ];
 
-    public function __construct(ContainerInterface $container,ClientFactory $clientFactory,SessionInterface $session){
+    public function __construct(ContainerInterface $container,ClientFactory $clientFactory){
         $this->container = $container;
-        $this->session = $session;
         $this->guzzleClient = $clientFactory->create();
+        $this->redis = $this->container->get(\Hyperf\Redis\RedisFactory::class)->get('default');
         $this->setConfig([]);
     }
 
@@ -82,10 +81,10 @@ class Geetest{
     private function successProcess($challenge) {
         $challenge = md5($challenge.$this->geetestKey);
         $result = [
-            'success' => 1,
-            'gt' => $this->geetestID,
-            'challenge' => $challenge,
-            'newCaptcha' =>1
+            'success'    => 1,
+            'gt'         => $this->geetestID,
+            'challenge'  => $challenge,
+            'newCaptcha' => 1
         ];
         $this->response = $result;
     }
@@ -189,11 +188,12 @@ class Geetest{
         $data = array(
             "user_id" => $userID,
             "client_type" => $clientType,
-            "ip_address" => \Hyperf\Utils\Network::ip(),
+            "ip_address" => '127.0.0.1',
         );
         $status = $this->preProcess($data, 1);
-        $this->session->set("gtServer",$status);
-        $this->session->set("gtUserID",$data['user_id']);
+        $response = $this->response;
+        $this->redis->set('gt_server',$status);
+        $this->redis->set('gt_user_id'.$response['challenge'],$data['user_id'],600);
         return $this->response;
     }
 
@@ -208,8 +208,10 @@ class Geetest{
      */
     public function validate($geetestChallenge, $geetestValidate, $geetestSeccode)
     {
-        if ($this->session->get('gtServer') == 1) {
-            if ($this->successValidate($geetestChallenge, $geetestValidate, $geetestSeccode, ['user_id' => $this->session->get('gtUserID')])) {
+        $gtServer = $this->redis->get('gt_server');
+        $userId = $this->redis->get('gt_user_id'.$geetestChallenge);
+        if ($gtServer == 1) {
+            if ($this->successValidate($geetestChallenge, $geetestValidate, $geetestSeccode,['user_id'=>$userId])) {
                 return true;
             }
             return false;
